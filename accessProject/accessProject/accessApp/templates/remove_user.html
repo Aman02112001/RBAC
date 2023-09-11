@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remove User</title>
+    <style>
+        /* Add some basic styling for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        /* Style the delete button */
+        .delete-button {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Remove User</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body">
+        </tbody>
+    </table>
+    <div class="button-container">
+        <button class="delete-button" onclick="history.go(-1)">Back</button>
+    </div>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Function to fetch users and display them in the table
+        function fetchUsers() {
+            fetch('/api/users/view/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const userTableBody = document.getElementById('user-table-body');
+                userTableBody.innerHTML = ''; // Clear the existing table rows
+                data.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.phone_number}</td>
+                        <td>${user.role}</td>
+                        <td>
+                            <button class="delete-button" onclick="deleteUser(${user.id})">Delete</button>
+                        </td>
+                    `;
+                    userTableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('An error occurred:', error);
+            });
+        }
+
+        // Function to delete a user
+        function deleteUser(userId) {
+            if (confirm("Are you sure you want to delete this user?")) {
+                fetch(`/api/users/remove/${userId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // User deleted successfully
+                        alert('User deleted successfully');
+                        // Refresh the user list to remove the deleted user
+                        fetchUsers();
+                    } else {
+                        // Handle errors
+                        alert('Error deleting user');
+                    }
+                })
+                .catch(error => {
+                    console.error('An error occurred:', error);
+                });
+            }
+        }
+
+        // Fetch users and display them when the page loads
+        fetchUsers();
+    </script>
+</body>
+</html>

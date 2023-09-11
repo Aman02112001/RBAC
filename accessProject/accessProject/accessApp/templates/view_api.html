@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API List</title>
+    <style>
+        /* Add some basic styling for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        /* Style the back button */
+        .back-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Style the table container */
+        .table-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API List</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Url</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody id="api-table-body">
+            </tbody>
+        </table>
+    </div>
+    <a class="back-button" href="javascript:history.go(-1)">Back</a>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        fetch('/api/apis/view/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            const apiTableBody = document.getElementById('api-table-body');
+            data.forEach(api => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${api.name}</td>
+                    <td>${api.url}</td>
+                    <td>${api.endpoint}</td>
+                    <td>${api.description}</td>
+                `;
+                apiTableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('An error occurred:', error);
+        });
+    </script>
+</body>
+</html>

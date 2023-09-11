@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remove API</title>
+    <style>
+        /* Add some basic styling for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Style the "Back" link and the "Delete" button as buttons */
+        .back-button,
+        .delete-button {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .back-button:hover,
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Remove API</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Url</th>
+                <th>Endpoint</th>
+                <th>Description</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="api-table-body">
+        </tbody>
+    </table>
+    <br/>
+    <br/>
+    <a href="javascript:history.go(-1)" class="back-button">Back</a>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Function to fetch APIs and display them in the table
+        function fetchAPIs() {
+            fetch('/api/apis/view/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const apiTableBody = document.getElementById('api-table-body');
+                apiTableBody.innerHTML = ''; // Clear the existing table rows
+                data.forEach(api => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${api.name}</td>
+                        <td>${api.url}</td>
+                        <td>${api.endpoint}</td>
+                        <td>${api.description}</td>
+                        <td>
+                            <button class="delete-button" onclick="deleteAPI(${api.id})">Delete</button>
+                        </td>
+                    `;
+                    apiTableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('An error occurred:', error);
+            });
+        }
+
+        // Function to delete an API
+        function deleteAPI(apiId) {
+            if (confirm("Are you sure you want to delete this API?")) {
+                fetch(`/api/apis/remove/${apiId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Refresh the API list to remove the deleted API
+                        fetchAPIs();
+                        // API deleted successfully
+                        alert('API deleted successfully');
+                    }
+                    else if(response.status === 400)
+                    {
+                        alert('The API is associated with a user. Delete the user first.');
+                    } 
+                    else {
+                        // Handle errors
+                        alert('Error deleting API');
+                    }
+                })
+                .catch(error => {
+                    console.error('An error occurred:', error);
+                });
+            }
+        }
+
+        // Fetch APIs and display them when the page loads
+        fetchAPIs();
+    </script>
+</body>
+</html>

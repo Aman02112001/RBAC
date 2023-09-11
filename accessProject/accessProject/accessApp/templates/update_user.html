@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update User</title>
+    <style>
+        /* Add some basic styling for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        /* Style the Update and Back buttons */
+        .button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            margin-right: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Update User</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Role</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body">
+        </tbody>
+    </table>
+    <div class="button-container">
+        <button class="button" onclick="history.go(-1)">Back</button>
+    </div>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Fetch user data from the API
+        fetch('/api/users/view/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Loop through the user data and display it in the table
+            const userTableBody = document.getElementById('user-table-body');
+            data.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone_number}</td>
+                    <td>${user.role}</td>
+                    <td>
+                        <a href="/api/update_users/${user.id}/" class="button">Update</a>
+                    </td>
+                `;
+                userTableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('An error occurred:', error);
+        });
+    </script>
+</body>
+</html>

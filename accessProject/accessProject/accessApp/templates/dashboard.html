@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .container a {
+            text-decoration: none;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        button.logout {
+            margin-top: 20px;
+            background-color: #dc3545;
+        }
+
+        button.logout:hover {
+            background-color: #bd2130;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome, {{ user }}!</h1>
+
+    <div class="container">
+        {% if user.role == 'Admin' %}
+        <a href="http://127.0.0.1:8000/api/view_users/">
+            <button class="button">View User</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/add_users/">
+            <button class="button">Add User</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/update_users/0/">
+            <button class="button">Update User</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/remove_users/">
+            <button class="button">Remove User</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/view_apis/">
+            <button class="button">View API</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/add_apis/">
+            <button class="button">Add API</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/update_apis/0/">
+            <button class="button">Update API</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/remove_apis/">
+            <button class="button">Remove API</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/map_page/">
+            <button class="button">Map API</button>
+        </a>
+        <!-- Add buttons or links for admin-specific actions here -->
+        {% elif user.role == 'User' %}
+        <a href="http://127.0.0.1:8000/api/view_apis/">
+            <button class="button">View API</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/add_apis/">
+            <button class="button">Add API</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/update_apis/">
+            <button class="button">Update API</button>
+        </a>
+        <a href="http://127.0.0.1:8000/api/remove_apis/">
+            <button class="button">Remove API</button>
+        </a>
+        <!-- Add buttons or links for user-specific actions here -->
+        {% elif user.role == 'Viewer' %}
+        <a href="http://127.0.0.1:8000/api/view_apis/">
+            <button class="button">View API</button>
+        </a>
+        <!-- Add buttons or links for viewer-specific actions here -->
+        {% endif %}
+    </div>
+
+    <button class="button logout" onclick="logout()">Logout</button>
+    <script>
+        // Store the access token in local storage
+        localStorage.setItem('access_token', '{{ access_token }}');
+        // console.log('{{ access_token }}')
+
+        // Function to handle the logout process
+        function logout() {
+            // Remove the access token from local storage
+            localStorage.removeItem('access_token');
+
+            // Redirect the user to the login page or any other page you prefer
+            window.location.href = '/api/login/';
+        }
+    </script>
+</body>
+</html>

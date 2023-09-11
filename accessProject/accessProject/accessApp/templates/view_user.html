@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User List</title>
+    <style>
+        /* Add some basic styling for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>User List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body">
+        </tbody>
+    </table>
+    <br/>
+    <br/>
+    <a href="javascript:history.go(-1)" class="back-button">Back</a>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Fetch user data from the API
+        fetch('/api/users/view/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Loop through the user data and display it in the table
+            const userTableBody = document.getElementById('user-table-body');
+            data.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone_number}</td>
+                    <td>${user.role}</td>
+                `;
+                userTableBody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('An error occurred:', error);
+        });
+    </script>
+</body>
+</html>

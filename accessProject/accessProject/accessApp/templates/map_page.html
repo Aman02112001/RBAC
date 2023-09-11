@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>View APIs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .map-button {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #007BFF;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .map-button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>View APIs</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>URL</th>
+                <th>Endpoint</th>
+                <th>Description</th>
+                <th>Map</th>
+            </tr>
+        </thead>
+        <tbody id="api-table-body">
+        </tbody>
+    </table>
+    <a href="javascript:history.go(-1)" class="back-button">Back</a>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Function to fetch APIs and display them in the table
+        function fetchAPIs() {
+            fetch('/api/apis/view/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const apiTableBody = document.getElementById('api-table-body');
+                    apiTableBody.innerHTML = ''; // Clear the existing table rows
+                    data.forEach(api => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                        <td>${api.name}</td>
+                        <td>${api.url}</td>
+                        <td>${api.endpoint}</td>
+                        <td>${api.description}</td>
+                        <td>
+                            <a class="map-button" href="/api/map_input_page/${api.id}/">Map</a>
+                        </td>
+                    `;
+                        apiTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('An error occurred:', error);
+                });
+        }
+
+        // Fetch APIs and display them when the page loads
+        fetchAPIs();
+    </script>
+</body>
+
+</html>

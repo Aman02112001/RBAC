@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Update Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"],
+        .back-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        button[type="submit"]:hover,
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>User Update Form</h1>
+    <form id="update-user-form">
+        {% csrf_token %}
+        <label for="update-username">Username:</label>
+        <input type="text" id="update-username" placeholder="Username" required>
+        <label for="update-email">Email:</label>
+        <input type="email" id="update-email" placeholder="Email" required>
+        <label for="update-phone-number">Phone Number:</label>
+        <input type="text" id="update-phone-number" placeholder="Phone Number" required>
+        <label for="update-role">Role:</label>
+        <input type="text" id="update-role" placeholder="Role" required>
+        <label for="update-password">New Password:</label>
+        <input type="password" id="update-password" placeholder="New Password">
+
+        <!-- Add the userId as a hidden input field -->
+        <input type="hidden" id="user-id" value="{{ user_id }}">
+
+        <button type="submit">Update User</button>
+        <a href="javascript:history.go(-1)" class="back-button">Back</a>
+    </form>
+
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Get the user ID from the hidden input field in the form
+        const userId = document.getElementById('user-id').value;
+
+        // Fetch existing user data and populate the form fields
+        fetch(`/api/get_user/${userId}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Populate the form fields with the retrieved data
+                document.getElementById('update-username').value = data.username;
+                document.getElementById('update-email').value = data.email;
+                document.getElementById('update-phone-number').value = data.phone_number;
+                document.getElementById('update-role').value = data.role;
+            })
+            .catch(error => {
+                console.error('An error occurred:', error);
+            });
+
+        // Handle form submission for updating user
+        const updateForm = document.getElementById('update-user-form');
+        updateForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Get the form field values directly
+            const username = document.getElementById('update-username').value;
+            const email = document.getElementById('update-email').value;
+            const phone_number = document.getElementById('update-phone-number').value;
+            const role = document.getElementById('update-role').value;
+            const password = document.getElementById('update-password').value;
+
+            // Create an object to store the user data to be sent in the request body
+            const userData = {
+                username: username,
+                email: email,
+                phone_number: phone_number,
+                role: role
+            };
+
+            // Include the password field in the userData object only if it's not empty
+            if (password !== '') {
+                userData.password = password;
+            }
+
+            // Send the PUT request to update the user data
+            fetch(`/api/users/update/${userId}/`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json' // Set the content type to JSON
+                },
+                body: JSON.stringify(userData) // Convert the userData object to JSON string
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // User data updated successfully
+                        alert('User updated successfully');
+                        // Redirect to the user list page or perform any other action
+                        // window.location.href = '/user-list/';
+                        window.location.href = '/api/update_users/0/';
+                    } else {
+                        // Handle errors
+                        alert('Error updating user');
+                    }
+                })
+                .catch(error => {
+                    console.error('An error occurred:', error);
+                }); 
+        });
+    </script>
+
+</body>
+
+</html>

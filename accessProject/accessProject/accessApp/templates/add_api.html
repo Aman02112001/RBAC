@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        /* Style the "Back" link like a button */
+        .back-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none; /* Remove the underline from the link */
+            display: inline-block; /* Display the link as a block-level element to add padding */
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Adjust the spacing between elements */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px; /* Add some space between the form and the "Back" link */
+        }
+
+        /* Adjust the spacing between the form elements */
+        label, input {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add API</h1>
+    <form id="apiForm">
+        {% csrf_token %}
+        <!-- Input fields for the API -->
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" placeholder="Name" required>
+        <label for="url">URL:</label>
+        <input type="text" name="url" id="url" placeholder="URL" required>
+        <label for="endpoint">Endpoint:</label>
+        <input type="text" name="endpoint" id="endpoint" placeholder="Endpoint" required>
+        <label for="description">Description:</label>
+        <input type="text" name="description" id="description" placeholder="Description" required>
+
+        <div class="button-container">
+            <button type="submit">Add API</button>
+            <a href="javascript:history.go(-1)" class="back-button">Back</a>
+        </div>
+    </form>
+
+    <script>
+        const apiForm = document.getElementById('apiForm');
+
+        // Handle form submission
+        apiForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(apiForm);
+            const accessToken = localStorage.getItem('access_token');
+
+            try {
+                // Send the POST request to the API endpoint with the JWT token in the header
+                const response = await fetch('/api/apis/add/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    // API added successfully, handle the response data if needed
+                    const data = await response.json();
+                    alert('API added successfully:', data);
+                    window.location.href = '/api/view_apis/';
+                } else {
+                    // Handle errors
+                    const errorData = await response.json();
+                    alert('Error:', errorData);
+                }
+            } catch (error) {
+                console.error('An error occurred:', error);
+            }
+        });
+    </script>
+</body>
+</html>

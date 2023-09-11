@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Update API</title>
+    <style>
+        /* Add some basic styling for the table */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Style the "Back" link and the "Update" link as buttons */
+        .back-button,
+        .update-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .back-button:hover,
+        .update-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Update API</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Url</th>
+                <th>Endpoint</th>
+                <th>Description</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="api-table-body">
+        </tbody>
+    </table>
+    <br />
+    <br />
+    <a href="javascript:history.go(-1)" class="back-button">Back</a>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Fetch user data from the API
+        fetch('/api/apis/view/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Loop through the user data and display it in the table
+                const apiTableBody = document.getElementById('api-table-body');
+                data.forEach(api => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${api.name}</td>
+                        <td>${api.url}</td>
+                        <td>${api.endpoint}</td>
+                        <td>${api.description}</td>
+                    <td>
+                        <a href="/api/update_apis/${api.id}/" class="update-button">Update</a>
+                    </td>
+                `;
+                    apiTableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('An error occurred:', error);
+            });
+    </script>
+</body>
+
+</html>

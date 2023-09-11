@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Update Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"],
+        .back-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        button[type="submit"]:hover,
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API Update Form</h1>
+    <form id="update-api-form">
+        {% csrf_token %}
+        <label for="update-name">Name:</label>
+        <input type="text" id="update-name" placeholder="Name" required>
+        <label for="update-url">URL:</label>
+        <input type="text" id="update-url" placeholder="URL" required>
+        <label for="update-endpoint">Endpoint:</label>
+        <input type="text" id="update-endpoint" placeholder="Endpoint" required>
+        <label for="update-description">Description:</label>
+        <input type="text" id="update-description" placeholder="Description" required>
+        <input type="hidden" id="api-id" value="{{ api_id }}">
+
+        <button type="submit">Update API</button>
+        <a href="javascript:history.go(-1)" class="back-button">Back</a>
+    </form>
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        // Get the API ID from the hidden input field in the form
+        const apiId = document.getElementById('api-id').value;
+
+        // Fetch existing API data and populate the form fields
+        fetch(`/api/get_api/${apiId}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Populate the form fields with the retrieved data
+                document.getElementById('update-name').value = data[0].name;
+                document.getElementById('update-url').value = data[0].url;
+                document.getElementById('update-endpoint').value = data[0].endpoint;
+                document.getElementById('update-description').value = data[0].description;
+            })
+            .catch(error => {
+                console.error('An error occurred:', error);
+            });
+
+        // Handle form submission for updating API
+        const updateForm = document.getElementById('update-api-form');
+        updateForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Get the form field values directly
+            const name = document.getElementById('update-name').value;
+            const url = document.getElementById('update-url').value;
+            const endpoint = document.getElementById('update-endpoint').value;
+            const description = document.getElementById('update-description').value;
+
+            // Create an object to store the API data to be sent in the request body
+            const apiData = {
+                name: name,
+                url: url,
+                endpoint: endpoint,
+                description: description
+            };
+
+            // Send the PUT request to update the API data
+            fetch(`/api/apis/update/${apiId}/`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json' // Set the content type to JSON
+                },
+                body: JSON.stringify(apiData) // Convert the apiData object to JSON string
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // API data updated successfully
+                        alert('API updated successfully');
+                        // Redirect to the API list page or perform any other action
+                        window.location.href = '/api/update_apis/0/';
+                    }
+                    else if (response.status === 403)
+                    {
+                        alert("This is mapped API can not update!")
+                    } 
+                    else {
+                        // Handle errors
+                        alert('Error updating API');
+                    }
+                })
+                .catch(error => {
+                    console.error('An error occurred:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>

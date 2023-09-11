@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Map API to Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .back-button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Map API to Users</h1>
+    <form id="map-api-form">
+        {% csrf_token %}
+        <label for="usernames">Usernames:</label>
+        <input type="text" id="usernames" placeholder="Comma-separated usernames" required>
+
+        <input type="hidden" id="api-id" value="{{ api_id }}">
+
+        <button type="submit">Map API to Users</button>
+        <a href="javascript:history.go(-1)" class="back-button">Back</a>
+    </form>
+
+    <script>
+        // Get the access token from local storage
+        const accessToken = localStorage.getItem('access_token');
+
+        const mapForm = document.getElementById('map-api-form');
+        mapForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Get the form field values directly
+            const apiId = document.getElementById('api-id').value;
+            const usernames = document.getElementById('usernames').value.split(',');
+
+            const userData = {
+                usernames: usernames
+            };
+
+            fetch(`/api/map_api_to_users/${apiId}/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json' // Set the content type to JSON
+                },
+                body: JSON.stringify(userData) // Convert the userData object to JSON string
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // API mapped to users successfully
+                        alert('API mapped to users successfully');
+                        // Redirect or perform any other action as needed
+                        window.location.href = '/api/map_page/';
+                    } else {
+                        // Handle errors
+                        alert('Error mapping API to users');
+                    }
+                })
+                .catch(error => {
+                    console.error('An error occurred:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
